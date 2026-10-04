@@ -72,7 +72,7 @@ export default function Chat() {
       time: now(),
     },
   ]);
-  const [typing, setTyping] = useState(false);
+  const [typing, setTyping] = useState(() => Boolean(params?.question));
   const [input, setInput] = useState("");
   const idRef = useRef(2);
   const listRef = useRef<HTMLDivElement | null>(null);
@@ -98,20 +98,17 @@ export default function Chat() {
 
   /* deep-linked question from Help / Booking details */
   useEffect(() => {
-    if (params?.question) {
-      const q = params.question;
-      setTyping(true);
-      const t = setTimeout(() => {
-        setTyping(false);
-        setMsgs((m) => [
-          ...m,
-          { id: idRef.current++, from: "me", text: q, time: now() },
-          { id: idRef.current++, from: "bot", text: answerFor(q), time: now() },
-        ]);
-      }, 500);
-      return () => clearTimeout(t);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    if (!params?.question) return;
+    const q = params.question;
+    const t = setTimeout(() => {
+      setTyping(false);
+      setMsgs((m) => [
+        ...m,
+        { id: idRef.current++, from: "me", text: q, time: now() },
+        { id: idRef.current++, from: "bot", text: answerFor(q), time: now() },
+      ]);
+    }, 500);
+    return () => clearTimeout(t);
   }, []);
 
   useEffect(() => {
